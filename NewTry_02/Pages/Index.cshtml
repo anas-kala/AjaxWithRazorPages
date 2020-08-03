@@ -1,0 +1,55 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Index";
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+        </tr>
+    </thead>
+    <tbody id="tableBody">
+
+    </tbody>
+</table>
+<script src="~/lib/dist/browser/signalr.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+        
+        let connection = new signalR.HubConnectionBuilder().withUrl("/signalServer").build()
+        connection.start()
+        
+        connection.on("refreshProducts", function () {
+            loadData()
+        })
+        loadData();
+
+        function loadData() {
+            var tr = ''
+            $.ajax({
+                url: "/Index/OnGetProducts",
+                method: 'GET',
+                success: (result) => {
+                    $.each(result, (k, v) => {
+                        tr = tr + `<tr>
+                            <td>${v.id}</td>
+                            <td>${v.productName}</td>
+                            <td>${v.quantity}</td>
+                            <td>${v.unitPrice}</td>
+                        `
+                    })
+
+                    $("#tableBody").html(tr)
+                },
+                error: (error) => {
+                    console.log(error);
+                }
+            })
+        }
+    })
+</script>
